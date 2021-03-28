@@ -28,7 +28,7 @@ authRoutes.post(
   async (req: any, res: Response) => {
     try {
       const { email, password } = req.body;
-      const userLogin = await UsuarioModel.findOne({email: email}).exec();
+      const userLogin = await UsuarioModel.findOne({ email: email }).exec();
       if (userLogin) {
         if (userLogin.compararClave(password)) {
           const payload = {
@@ -42,24 +42,24 @@ authRoutes.post(
             userLogin,
             token,
           });
-        } else if (password == '' || userLogin.password == ''){
+        } else if (password == "" || userLogin.password == "") {
           return res.status(400).json({
             ok: false,
-            mensaje: 'Campo vacio',
-            errors: { message: 'El campo no puede estar vacio' },
+            mensaje: "Campo vacio",
+            errors: { message: "El campo no puede estar vacio" },
           });
         } else if (password !== userLogin.password) {
           return res.status(400).json({
             ok: false,
-            mensaje: 'Clave incorrecta',
-            errors: { message: 'Clave incorrecta' },
+            mensaje: "Clave incorrecta",
+            errors: { message: "Clave incorrecta" },
           });
         }
       } else {
         return res.status(400).json({
           ok: false,
-          mensaje: 'Credenciales no son correctas',
-          errors: { message: 'Credenciales no son correctas' },
+          mensaje: "Credenciales no son correctas",
+          errors: { message: "Credenciales no son correctas" },
         });
       }
     } catch (error) {
@@ -106,7 +106,7 @@ authRoutes.post(
       };
       const userCreated = new UsuarioModel(usuario);
       // genererar token
-      const token = await Token.generateJwtToken(usuario);
+      const token = await Token.generateJwtToken(userCreated);
       await userCreated.save();
       return res.status(201).json({
         ok: true,
@@ -126,23 +126,28 @@ authRoutes.post(
 );
 
 // validar y renovar token
-authRoutes.get("/renewtoken", verificaToken ,async (req: any, res: Response) => {
-  try {
-    const {usuario, uid, name} = req;
-    const token = await Token.generateJwtToken(usuario);
-    return res.status(200).json({
-      ok: true,
-      msg: "RE new token",
-      usuario,
-      token
-    });
-    
-  } catch (error) {
-    return res.status(500).json({
-      ok: false,
-      msg: "Ha ocurrido un error interno.",
-    });
+authRoutes.get(
+  "/renewtoken",
+  verificaToken,
+  async (req: any, res: Response) => {
+    try {
+      const { usuario } = req;
+      const token = await Token.generateJwtToken(usuario);
+      delete usuario.password;
+      return res.status(200).json({
+        ok: true,
+        msg: "RE new token",
+        usuario,
+        uid: usuario._id,
+        token,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        ok: false,
+        msg: "Ha ocurrido un error interno.",
+      });
+    }
   }
-});
+);
 
 export default authRoutes;

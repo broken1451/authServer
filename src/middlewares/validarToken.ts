@@ -8,7 +8,7 @@ export const verificaToken = (req: any, res: Response, next: NextFunction) => {
 
   Token.comprobarToken(userToken)
     .then((decoded: any) => {
-      console.log({ decoded });
+      // console.log({ decoded });
       req.usuario = decoded.usuario;
       next();
     })

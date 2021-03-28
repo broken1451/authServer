@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import authRoutes from "../routes/auth";
 // import bodyParser from "body-parser";
 
@@ -27,5 +28,13 @@ export default class Server {
 
   startRoutes() {
     this.app.use("/api/auth", authRoutes);
+
+    // manejar demas rutas q no consiga node, cualquier ruta q no este definida se ataja en este get
+    this.app.get('*', (req, res) => {
+      // console.log(path.resolve(__dirname,'../../public/index.html'))
+      // console.log(path.resolve(__dirname))
+      res.sendFile(path.resolve(__dirname,'../../public/index.html'))
+    })
+    // console.log(object)
   }
 }
